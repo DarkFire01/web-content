@@ -8,7 +8,7 @@ tags:       [ "wddm" ]
 The history of ReactOS spans a wider range than the lives of many of the people who work on it today.
 Incredible individuals have come and gone from the project with vastly different goals for what they want to see developed.
 In recent years, better hardware support has emerged as one of those goals.
-As ReactOS gazes towards the world of Vista and beyond, a few topics regarding how hardware works make themselves known.
+As ReactOS gazes towards the world of Vista and beyond, a few questions about how hardware works emerge.
 Vista introduced massive overhauls to how hardware drivers are written and maintained.
 Gradually we’re trying to handle many of these overhauls with great success.
 Today we talk about WDDM, or the Windows Display Driver Model.
@@ -21,7 +21,7 @@ Dxgkrnl.sys, the DirectX graphics driver, talks to a miniport driver to provide 
 The WDDM revision (WDDM 1.0, 1.1, 1.2….) primarily describes how many of these interfaces are supported and implemented.
 This is different than the feature level that is described in DxDiag. 
 {{< gallery >}}
-{{< figure link="/img/blogs/investigating-wddm/win10_dxdiag_feature_level.png" src="/img/blogs/investigating-wddm/vwin10_dxdiag_feature_level.png" caption="DxDiag on Windows 10">}}
+{{< figure link="/img/blogs/investigating-wddm/win10_dxdiag_feature_level.png" src="/img/blogs/investigating-wddm/win10_dxdiag_feature_level.png" caption="DxDiag on Windows 10">}}
 {{< /gallery >}}
 ### Wait… What happened to XDDM?
 Officially starting with Windows 8, every GPU driver for the system had to be a WDDM driver.
@@ -52,24 +52,24 @@ On one hand, it is an XDDM display driver.
 It also fires two I/O control codes (IOCTLs) which facilitates communication with WDDM.
 This driver is the only route which Dxgkrnl and Win32k use to talk to each other in any meaningful capacity.
 Technically, there’s also some communication between watchdog, Win32k, and Dxgkrnl on initialization to fill in the interface to dispatch D3DKMT APIs for Dxgkrnl; but that’s only during the initialization of Dxgkrnl itself.
-It’s also worth noting, when this happens the query in win32k to find a supported display adapter is always manually overwritten with cdd.dll.
+It’s also worth noting, when this happens the query in Win32k to find a supported display adapter is always manually overwritten with cdd.dll.
 Once you start a WDDM driver you cannot run an XDDM driver at the same time! 
 Alright that was a lot of information, but there’s some important things to understand here.
 CDD.dll first and foremost IS an XDDM display driver, even if it’s translating from the old world Win32k to the new world WDDM stack it’s still stressing Win32k out.
-This means for ReactOS simply to be truly compatible with WDDM and get vendor drivers to start up their display properly; our XDDM stack must be in great shape.
+This means for ReactOS to be truly compatible with WDDM, our XDDM stack must be in great shape.
 This isn’t the only Vista+ feature that has this requirement.
 DWM (which is worth its own blog post) does a lot of things that even the current ReactOS Win32k just isn’t capable of handling quite yet.
 But we're constantly improving.
- (note reactos cdd on vista)
+
 ### Compiling WDDM drivers with ReactOS
 One of the first components that needed to be understood was displib.lib, a component shipped with the WDK that allows for compiling WDDM drivers. https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/dispmprt/nf-dispmprt-dxgkinitializedisplayonlydriver
-In order to compile a WDDM driver you need to link with a library that implements a function like the above to allow your driver to “start” Dxgkrnl.
+In order to compile a WDDM driver, you need to link with a library that implements a function like the above to allow your driver to “start” Dxgkrnl.
 WDDM drivers don’t link against Dxgkrnl at all!
 Instead, when you call an API like the one above, you pass data to Dxgkrnl, which then calls back into your miniport’s initialization routine.
 That callback is what provides the interfaces you need to continue communicating with Dxgkrnl.
 Win32k has nothing to do with the miniport driver starting up!
 This was relatively straightforward to make an alternative to, opening the door for ReactOS to import and compile WDDM drivers that work even on Windows!
-(note reactos compiled bochs wddm driver on vista)
+
 ### WDDM! Technically..?
 Now that we know how WDDM drivers start up, we can start thinking about how to support this architecture on ReactOS.
 The D3DKMT APIs are only used for DirectX and OpenGL acceleration so we can ignore that for now.
@@ -89,8 +89,12 @@ ReactOS can communicate with its first WDDM driver!
 When I first got BasicDisplay.sys loading in ReactOS I noticed how forgiving WDDM truly was.
 I realized I could escalate this further than I’d anticipated.
 It turned out these vendor drivers are very willing to accept being started just for their display for example.
+{{< gallery >}}
+{{< figure link="/img/blogs/investigating-wddm/1070_on_reactos.jpeg" src="/img/blogs/investigating-wddm/1070_on_reactos.jpeg" caption="ReactOS running NVIDIA Windows 7 GPU Driver (Display / 2D only)">}}
+{{< /gallery >}}
+
 [note reactos running a 1070 series card in 2D mode] 
-I was quickly getting more drivers to show some kind of display out, allowing ReactOS to power modern monitors at their follow resolutions.
+I was quickly getting more drivers to show some kind of display out, allowing ReactOS to power modern monitors at their full resolutions and refresh rates.
 But I quickly was getting limited not by the implementation of our Win32k but instead our support for hardware itself.
 
 ### Why I wrote this and what's to come
@@ -99,4 +103,5 @@ The first was to put out that ReactOS is indeed looking at trying to support lat
 XDDM is REQUIRED for WDDM, we need to continue to improve in this area.
 The other reason was because this is the first of a few blog posts I intend to write for the ReactOS project on this subject.
 We’ve been actively working to improve hardware support to unblock these future ideas and need more support to do so!
+To help support the ReactOS project, you can make a [donation](https://reactos.org/donate/), contribute to the project on [GitHub](https://github.com/reactos/reactos), or talk to your friends and family about us!
 We look forward to sharing more hardware support and WDDM blog posts.
