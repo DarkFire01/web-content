@@ -41,7 +41,7 @@ Interestingly Vulkan behaves similarly:
 {{< figure link="/img/blogs/investigating-wddm/vulkan_on_reactos.png" src="/img/blogs/investigating-wddm/vulkan_on_reactos.png" caption="The MESA Vulkan ICD loading on ReactOS">}}
 {{< /gallery >}}
 OpenGL ICDs are one thing, but what about the display driver?
-Watching what Vista and later win32k does while starting up shows some interesting behaviors.
+Watching what Vista and later Win32k does while starting up shows some interesting behaviors.
 There’s two important display drivers we should talk about: TSDDD.dll and CDD.dll.
 TSDDD is manually loaded when session 0 starts.
 This is just a normal XDDM display driver that does nothing except write to blank memory.
