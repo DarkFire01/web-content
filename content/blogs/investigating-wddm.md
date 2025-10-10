@@ -93,9 +93,8 @@ It turned out these vendor drivers are very willing to accept being started just
 {{< figure link="/img/blogs/investigating-wddm/1070_on_reactos.jpeg" src="/img/blogs/investigating-wddm/1070_on_reactos.jpeg" caption="ReactOS running NVIDIA Windows 7 GPU Driver (Display / 2D only)">}}
 {{< /gallery >}}
 
-[note reactos running a 1070 series card in 2D mode] 
 I was quickly getting more drivers to show some kind of display out, allowing ReactOS to power modern monitors at their full resolutions and refresh rates.
-But I quickly was getting limited not by the implementation of our Win32k but instead our support for hardware itself.
+But I quickly was getting limited not by our implementation of Win32k but instead our support for hardware itself.
 
 ### Why I wrote this and what's to come
 There’s two things I hoped to accomplish with this blog post.
